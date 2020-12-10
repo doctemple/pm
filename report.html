@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Check Time</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+		<link rel="stylesheet" href="css/bootstrap-4.3.1.css">
+		<link rel="stylesheet" href="css/main.css">
+		<link rel="stylesheet" href="css/style.css">
+		<link rel="stylesheet" href="css/sweetalert.css">
+		<link rel="stylesheet" href="css/gijgo.min.css">
+		<link rel="stylesheet" href="css/animate.css">
+		<link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
+		<link rel="stylesheet" href="css/timepicker.css">
+
+		 <script src="js/jquery-3.4.1.min.js"></script>
+		 <script src="js/bootstrap-4.3.1.min.js"></script>
+		 <script src="js/sweetalert.min.js"></script>
+		 <script src="js/popper.min.js"></script>
+     <script src="js/jquery.cookie.js"></script>
+     <script src="js/timepicker.js"></script>
+	 <script src="js/html2canvas.js"></script>
+	 <script src="js/canvas2image.js"></script>
+     <script src="js/wat.js"></script>
+
+	 <style>
+	 body{ margin-top:60px; margin-bottom:50px;  }
+	 ol{ list-style-type:none; }
+	 </style>
+		</head>
+ <body style="zoom:90%;">
+ 	<div class="row navbar navbar-expand-md navbar-dark fixed-top bg-dark animated fadeInDown delay-1s">
+		<div class="col-4 text-left"><a class="btn btn-primary" href="index.html">Home</a></div>
+		<div class="col-4" >
+		<!--
+		<input id="btn-Preview-Image" class="btn btn-info" type="button" value="Save Picture" />
+		<input class="btncopy btn btn-warning" type="button" value="Copy" data-clipboard-action="copy" data-clipboard-target="#report-all" />
+		<input id="sendtolinemg" class="btn btn-success" type="button" value="LINE Manager"  />
+		-->
+		รายงาน
+
+		</div>
+		<div class="col-4 text-right"><input id="sendtolinepm" class="btn btn-secondary" type="button" value="LINE Dev"  /></div>
+	</div>
+
+<div  id="report-all" class="card container animated fadeInUp">
+<div class="card-body">
+
+
+<div id="content_action" class="p-2 ml-auto animated fadeInLeft " style="text-align:center;  align-items: center;  justify-content: center; " >
+</div>
+
+<h4 id="today"><p id="date" class="">To Days</p></h4>
+<h4>แผนกโปรแกรมเมอร์</h4>
+<h5>ในแผนกมีทั้งหมด <span id="allperson" class="badge badge-primary">0</span> คน.</h5>
+<div id="report-content" class="animated fadeInLeft " style=" align-items: center;  justify-content: center; " >รายงาน การขาด ลา มา สาย ประจำวัน</div>
+</div>
+</div>
+
+
+    <div id="previewImage"></div>
+
+
+<script type="text/javascript">
+$(document).ready(function(){
+
+function getTotal(){
+$.getJSON( "api/index.php?action=fetch_all", function( data ) {
+			$('#allperson').text(data.length);
+			console.log(data.length);
+  });
+}
+
+getTotal();
+
+var today = new Date();
+var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+ $('#date').text(date);
+
+var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+var today = new Date();
+var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+var fullDate = today.getDate()+' '+months[today.getMonth()]+' '+today.getFullYear();
+var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+var dateTime = date+' '+time;
+
+
+$('#today').text(fullDate);
+
+function genLiWork(data,subject,wv){
+	var i = 0;
+	var a = '';
+	a += '<ol>';
+		$.each(data, function(index, value) {
+
+				var timeSplit = value.aDate.split(' ');
+				var vtime = timeSplit[1].slice(0, 5);
+
+var time1Date= new Date("01/01/2000 "+vtime);
+var time2Date= new Date("01/01/2000 "+'08:01');
+if(value.leave=='0'){
+if(wv==1){
+		if(vtime != '00:00' && time1Date < time2Date){
+			i = i+1;
+			a += '<li>  '+i+') '+value.NickName+' <span class="badge badge-success">'+vtime+'</span> \n</li>';
+		}
+}else if(wv==10){
+		if(vtime == '00:00'){
+			i = i+1;
+			a += '<li>&nbsp;&nbsp;'+i+'. &nbsp; '+value.NickName+'  \n</li>';
+		}
+}else{
+		if(time1Date > time2Date){
+				i = i+1;
+				a += '<li>&nbsp;&nbsp;'+i+'. &nbsp; '+value.NickName+' <span class="badge badge-warning">'+vtime+'</span> \n</li>';
+			}
+	}
+
+}
+
+
+
+		});
+	var o ='<h6>'+subject+' <span class="badge badge-primary">'+i+'</span> คน (ตามลำดับ)</h6> \n';
+	a +='</ol>';
+	if(i>0){ a +='<br>\n'; }
+	var r = o.concat(a);
+	return r;
+}
+
+function genLeave(data,subject,lv){
+	var i = 0;
+	var a = '';
+	a += '<ol>';
+		$.each(data, function(index, value) {
+		if(value.work==0 && value.leave == lv){
+				i = i+1;
+				a += '<li>&nbsp;&nbsp;'+i+'. &nbsp; '+value.NickName+'\n</li>';
+
+		}
+		});
+	var o ='<h6>'+subject+' <span class="badge badge-warning">'+i+'</span> คน (ตามลำดับ)\n</h6>';
+	a +='</ol>';
+	if(i>0){ a +='<br>\n'; }
+	var r = o.concat(a);
+	return r;
+}
+
+
+function getReport(){
+	var x = '';
+$.getJSON( "api/index.php?action=fetch_all", function( data ) {
+	x += '<li>'+genLiWork(data,'มาแล้ว (ทันเวลา)',1)+'</li>';
+	x += '<li>'+genLiWork(data,'มาแล้ว (สาย)',0)+'</li>';
+	x += '<li>'+genLiWork(data,'ยังไม่มา',10)+'</li>';
+	x += '<li>'+genLeave(data,'ลากิจ',1)+'</li>';
+	x += '<li>'+genLeave(data,'ลาป่วย',2)+'</li>';
+	x += '<li>'+genLeave(data,'ลาพักร้อน',3)+'</li>';
+	x += '<li>'+genLeave(data,'ลาคลอด',4)+'</li>';
+	x += '<li>'+genLeave(data,'ลาเรียน',5)+'</li>';
+	x += '<li>'+genLeave(data,'ลาบวช',6)+'</li>';
+	x += '<li>'+genLeave(data,'หยุดแบบไม่รับเงิน',7)+'</li>';
+	x += '<li>'+genLeave(data,'ขาดงาน',8)+'</li>';
+
+	$("#report-content").html('<ul>'+x+'</ul>');
+
+	});
+
+}
+
+ $("#btn-Preview-Image").click(function() {
+        html2canvas($("#report-all"), {
+            onrendered: function(canvas) {
+                //theCanvas = canvas;
+                //document.body.appendChild(canvas);
+
+                // Convert and download as image
+                Canvas2Image.saveAsPNG(canvas);
+               // $("#previewImage").append(canvas);
+                // Clean up
+                //document.body.removeChild(canvas);
+            }
+        });
+    });
+
+setInterval(function(){  getReport(); },1000);
+
+
+});
+
+    </script>
+
+<form id="fsendlinemg" method="post" action="notify_manager.php">
+	<textarea id="message_textmg" name="message_textmg" rows="25" cols="50" style="display:none;"></textarea>
+</form>
+
+<form id="fsendlinepm" method="post" action="notify_programmer.php">
+	<textarea id="message_textpm" name="message_textpm" rows="25" cols="50" style="display:none;"></textarea>
+</form>
+
+<script type="text/javascript">
+<!--
+
+function ltrim(str){
+    return str.replace(/^\s+/, "");
+}
+
+
+		$('#sendtolinemg').click(function(){
+				var promise = $('#report-all').text();
+				$('#message_textmg').append('\n'+promise.trim());
+				$('#fsendlinemg').submit();
+		});
+
+		$('#sendtolinepm').click(function(){
+				var promise = $('#report-all').text();
+				$('#message_textpm').append('\n'+promise.trim());
+				$('#fsendlinepm').submit();
+		});
+
+//-->
+</script>
+</body>
+</html>

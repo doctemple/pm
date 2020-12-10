@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Check Time</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+		<link rel="stylesheet" href="css/bootstrap-4.3.1.css">
+		<link rel="stylesheet" href="css/main.css">
+		<link rel="stylesheet" href="css/style.css">
+		<link rel="stylesheet" href="css/sweetalert.css">
+		<link rel="stylesheet" href="css/gijgo.min.css">
+		<link rel="stylesheet" href="css/animate.css">
+		<link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
+		<link rel="stylesheet" href="css/timepicker.css">
+
+		 <script src="js/jquery-3.4.1.min.js"></script>
+		 <script src="js/bootstrap-4.3.1.min.js"></script>
+		 <script src="js/sweetalert.min.js"></script>
+		 <script src="js/popper.min.js"></script>
+     <script src="js/jquery.cookie.js"></script>
+     <script src="js/timepicker.js"></script>
+     <script src="js/wat.js"></script>
+	 <style>
+body{ margin-top:60px; margin-bottom:50px;  }
+	  #date{
+  font-size: 1.3em;
+  text-align: center;
+}
+
+.align-center{
+  align-items: center;
+  -webkit-align-items: center;
+ text-align:center;
+ justify-content: center;
+}
+#clock{
+  align-items: center;
+  -webkit-align-items: center;
+ text-align:center;
+ justify-content: center;
+  margin-bottom: 4px;
+}
+.unit{
+  font-size: 1.5rem;
+  text-align: center;
+  font-weight:bold;
+}
+	 </style>
+		</head>
+ <body class="bg-light">
+
+ 	<div class="row navbar navbar-expand-md navbar-dark fixed-top bg-dark animated fadeInDown delay-1s">
+		<div class="col-3 text-left"><button class="btn btn-secondary" onclick="history.go(-1);">Back</button></div>
+		<div class="col-5 text-center"><h6 class="text-light" >Check Time</h6></div>
+		<div class="col-4 text-right"><button class="btn  btn-primary" onclick="location='index.html';">Home</button></div>
+	</div>
+
+
+<!-- User Online //-->
+<div id="content_user_online" class="animated fadeInDown" style="text-align:center;  align-items: center;  justify-content: center; " >
+	<div id="clock" class="row animated fadeInRight">
+		<span class="col-2 unit btn btn-secondary" id="hours"></span>
+		<span class="col-2 unit btn btn-secondary" id="minutes"></span>
+		<span class="col-2 unit btn btn-secondary" id="seconds"></span>
+		<span class="col-2 unit btn btn-secondary" id="ampm"></span>
+	</div>
+</div>
+
+
+<div class="card container animated fadeInLeft ">
+<div class="card-body">
+
+<div id="content_action"  style="text-align:center;  align-items: center;  justify-content: center; " >
+  <!-- Nav tabs -->
+  <ul class="nav nav-tabs ">
+    <li class="nav-item ">
+      <a class="nav-link active" data-toggle="tab" href="#come" style="font-size:24px;"><i class="fa fa-car"></i> มา</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-toggle="tab" href="#leave" style="font-size:24px;"><i class="fa fa-bed"></i> ลา</a>
+    </li>
+  </ul>
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <div id="come" class="container tab-pane active"><br>
+		<input id="atime" type="time" value="07:30" min="6:00" max="18:02" class="form-control" style="font-size:20px; font-weight:bold;">
+		<button id="action-work" class="btn btn-success btn-lg">เข้างาน</button>
+		<script type="text/javascript">
+		$(function(){
+		  var d = new Date(),
+			  h = d.getHours(),
+			  m = d.getMinutes();
+		  if(h < 10) h = '0' + h;
+		  if(m < 10) m = '0' + m;
+		  $('#atime').each(function(){
+			$(this).attr({'value': h + ':' + m});
+		  });
+		});
+		</script>
+    </div>
+    <div id="leave" class="container tab-pane fade"><br>
+
+    </div>
+  </div>
+</div>
+
+
+</div>
+</div>
+<span style="margin:20px 0px 20px 0px;"></span>
+<script type="text/javascript">
+$(document).ready(function(){
+
+
+var id = _Get('id');
+
+function AjaxPost(url,vdata){
+  $.ajax({
+      type: 'post',
+      url: url,
+      data: vdata
+  }).done(function (data) {
+	  console.log(vdata);
+      var data_array = data.split(",");
+      if(data_array[0]=='success'){
+			console.log('ส่งข้อมูล สำเร็จ');
+			location='index.html';
+    }else{
+			console.log('ส่งข้อมูล ล้มเหลว');
+    }
+	console.log(data);
+  }).fail(function () {
+	       console.log('ข้อมูลผิดพลาด');
+  }).always(function() {
+			console.log('จบกระบวนการส่งข้อมูล');
+  });
+}
+
+$('#action-work').click(function(){
+var atime = $('#atime').val();
+var currentdate = new Date();
+var datetime = currentdate.getFullYear()+'-'
+						+(currentdate.getMonth()+1)+'-'
+						+currentdate.getDate()+' '
+						+atime+ ":00";
+
+console.log(datetime);
+
+var id = _Get('id');
+var vdata = {id:id, work:'1', aDate:datetime};
+var serviceUrl = 'api/update-work.php';
+
+AjaxPost(serviceUrl,vdata);
+
+  });
+
+//$("#atime").timepicker();
+
+function getUserAction(id,user,time){
+			$( "#content_user_online" )
+				.prepend( '<div class="row"><div class="col-5" ><img src="images/'+id+'.png"  class="rounded-circle"  width="120" height="120" style="margin-bottom:10px;"></div><div class="col-7" style="text-align:left; "><span style="padding:30% 0% 0% 0%; "><h3>'+user+'</h3></span><p id="today" class="">sdsds</p></div></div>');
+}
+
+
+function setAction(id,user,color,label,leave){
+	if(color=="warning"){ var textcolor = 'text-dark'; }else{ var textcolor = 'text-light'; }
+			$( "#leave" )
+				.append( '<a id="leave'+leave+'" class="btn btn-sm '+textcolor+' btn-'+color+' " style="width:49%; font-size:20px; margin:1px 8px; padding:15px 2px;">'+
+				label+'</a>');
+
+}
+
+
+
+var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+var today = new Date();
+var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+var fullDate = today.getDate()+' '+months[today.getMonth()]+' '+today.getFullYear();
+var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+var dateTime = date+' '+time;
+
+
+
+
+	getUserAction(id,_Get('user'),time);
+
+	setAction(id,_Get('user'),'info','ลากิจ',1);
+	setAction(id,_Get('user'),'warning','ลาป่วย',2);
+	setAction(id,_Get('user'),'primary','ลาพักร้อน',3);
+	setAction(id,_Get('user'),'secondary','ลาคลอด',4);
+	setAction(id,_Get('user'),'success','ลาเรียน',5);
+	setAction(id,_Get('user'),'warning','ลาบวช',6);
+	setAction(id,_Get('user'),'primary','หยุดแบบไม่รับเงิน',7);
+	setAction(id,_Get('user'),'danger','ขาดงาน',8);
+	setAction(id,_Get('user'),'primary','หยุดชดเชย',9);
+	setAction(id,_Get('user'),'success','ทำงานที่บ้าน',10);
+
+var formData1 = {id:id, leave:"1"};
+$('#leave1').click(function(){ AjaxPost('api/update-leave.php',formData1); });
+
+var formData2 = {id:id, leave:"2"};
+$('#leave2').click(function(){ AjaxPost('api/update-leave.php',formData2); });
+
+var formData3 = {id:id, leave:"3"};
+$('#leave3').click(function(){ AjaxPost('api/update-leave.php',formData3); });
+
+var formData4 = {id:id, leave:"4"};
+$('#leave4').click(function(){ AjaxPost('api/update-leave.php',formData4); });
+
+var formData5 = {id:id, leave:"5"};
+$('#leave5').click(function(){ AjaxPost('api/update-leave.php',formData5); });
+
+var formData6 = {id:id, leave:"6"};
+$('#leave6').click(function(){ AjaxPost('api/update-leave.php',formData6); });
+
+var formData7 = {id:id, leave:"7"};
+$('#leave7').click(function(){ AjaxPost('api/update-leave.php',formData7); });
+
+var formData8 = {id:id, leave:"8"};
+$('#leave8').click(function(){ AjaxPost('api/update-leave.php',formData8); });
+
+var formData9 = {id:id, leave:"9"};
+$('#leave9').click(function(){ AjaxPost('api/update-leave.php',formData9); });
+
+var formData10 = {id:id, leave:"10"};
+$('#leave10').click(function(){ AjaxPost('api/update-leave.php',formData10); });
+
+$('#today').text(fullDate);
+
+
+});
+
+
+var $dOut = $('#date'),
+    $hOut = $('#hours'),
+    $mOut = $('#minutes'),
+    $sOut = $('#seconds'),
+    $ampmOut = $('#ampm');
+	$tdOut = $('#today');
+var months = [
+  'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+var days = [
+  'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+];
+
+function update(){
+  var date = new Date();
+
+  var ampm = date.getHours() < 12
+             ? 'AM'
+             : 'PM';
+
+  var hours = date.getHours() == 0
+              ? 12
+              : date.getHours() > 12
+                ? date.getHours() - 12
+                : date.getHours();
+
+  var minutes = date.getMinutes() < 10
+                ? '0' + date.getMinutes()
+                : date.getMinutes();
+
+  var seconds = date.getSeconds() < 10
+                ? '0' + date.getSeconds()
+                : date.getSeconds();
+
+  var dayOfWeek = days[date.getDay()];
+  var month = months[date.getMonth()];
+  var day = date.getDate();
+  var year = date.getFullYear();
+
+  var dateString = dayOfWeek + ', ' + month + ' ' + day + ', ' + year;
+
+  var today = day +'/'+month + '/' + year;
+
+  $tdOut.text(today);
+  $dOut.text(dateString);
+  $hOut.text(hours);
+  $mOut.text(minutes);
+  $sOut.text(seconds);
+  $ampmOut.text(ampm);
+}
+
+update();
+window.setInterval(update, 1000);
+
+</script>
+
+ 	<div class="row navbar navbar-expand-md bg-secondary fixed-bottom sticky-bottom animated fadeInUp delay-1s">
+		<div class="col-6 text-left" style="font-size:12px; color:#FFF;">@Quark System</div>
+		<div class="col-6 text-right"><button class="btn  btn-warning" onclick="location='report.html';">Report</button></div>
+  </div>
+  
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      var isMobile = window.matchMedia("only screen and (max-width: 760px)").matches;
+      if (!isMobile) {
+          //$('body').css('margin-top','0');
+          //$('body').css('margin-bottom','0');
+          $('body').css('max-width','420px');			
+          //$('.pagebar').remove();
+
+      }
+    });
+   </script>
+
+</body>
+</html>

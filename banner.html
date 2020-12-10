@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Project Management System</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="css/bootstrap-4.3.1.css">
+		<link rel="stylesheet" href="css/main.css">
+		<link rel="stylesheet" href="css/style.css">
+		<link rel="stylesheet" href="css/sweetalert.css">
+		<link rel="stylesheet" href="css/gijgo.min.css">
+		<link rel="stylesheet" href="css/animate.css">
+		<link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
+
+		 <script src="js/jquery-3.4.1.min.js"></script>
+		 <script src="js/bootstrap-4.3.1.min.js"></script>
+		 <script src="js/sweetalert.min.js"></script>
+		 <script src="js/popper.min.js"></script>
+     <script src="js/jquery.cookie.js"></script>
+		</head>
+ <body >
+<!-- User Online //-->
+<div id="content_user_online" class="p-2 ml-auto animated fadeInLeft " style=" display: flex; align-items: center;  justify-content: center;" >
+</div>
+
+<script type="text/javascript">
+$(document).ready(function(){
+getOnline();
+});
+
+function getOnline(){
+$.getJSON( "api/online.php", function( data ) {
+	$( "#content_user_online" ).text('');
+		for (var i = 0; i < data.length; i++) { 
+						
+						if(data[i]['status']=='OFF'){
+						$( "#content_user_online" )
+						.append( '<a href="" class="btn btn-sm btn-secondary ">'+
+						'<img src="images/avatar.png"  class="rounded-circle img-gray"  width="30" height="30"   style="opacity: .8;"> '+data[i]['nick']+
+						' <span class="badge badge-danger">'+data[i]['status']+'</span></a>');
+						}else{
+						$( "#content_user_online" )
+						.append( '<a href="" class="btn btn-sm btn-primary animated flash">'+
+						'<img src="images/avatar.png"  class="rounded-circle"  width="30" height="30"   style="opacity: .8;"> '+data[i]['nick']+
+						' <span class="badge badge-success">'+data[i]['status']+'</span></a>');
+						}
+		}
+  });
+}
+
+setInterval(function(){ getOnline(); },3000);
+
+</script>
+
+</body>
+</html>
